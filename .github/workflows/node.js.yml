@@ -1,0 +1,26 @@
+name: CI/CD pipeline for Lift-o-Meter backend
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+jobs:
+  Frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - name: npm install 
+      run: npm ci
+    - name: test
+      run: npm run test
+    - name: deploy
+      uses: akhileshns/heroku-deploy@v3.12.12
+      if: ${{ github.event_name == 'push' }}
+      with:
+        heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+        heroku_app_name: "lift-o-meter-front"
+        heroku_email: "tommi.niittymies@gmail.com"
