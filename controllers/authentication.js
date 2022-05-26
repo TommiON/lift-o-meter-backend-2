@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const router = require('express').Router()
+const bcrypt = require('bcrypt')
 const { User } = require('../models')
 const tokenHandler = require('../utils/tokenHandler')
 const { SECRET } = require('../utils/config')
@@ -14,8 +15,8 @@ router.post('/login', async (request, response) => {
     }
 
     // tämä muutetaan kun salasanat kryptatuksi
-    const passwordCorrect = request.body.password === user.password
-
+    const passwordCorrect = await bcrypt.compare(request.body.password, user.password)
+    
     if(!passwordCorrect) {
         return response.status(400).json({ error: 'väärä salasana' })
     }

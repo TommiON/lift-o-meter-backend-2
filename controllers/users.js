@@ -1,10 +1,13 @@
 const router = require('express').Router()
+const bcrypt = require('bcrypt')
 const { User } = require('../models')
 const tokenHandler = require('../utils/tokenHandler')
 
 router.post('/', async (request, response) => {
     try {
-        const newUser = await User.create(request.body)
+        const saltrounds = 10
+        const hashedPassword = await bcrypt.hash(request.body.password, saltrounds)
+        const newUser = await User.create({ ...request.body, password: hashedPassword })
         response.json(newUser)
     } catch (error) {
         response.status(400).json({error})
