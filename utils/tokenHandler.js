@@ -3,7 +3,7 @@ const { SECRET } = require('./config')
 
 const tokenHandler = (request, response, next) => {
     const authorizationHeader = request.get('authorization')
-
+    
     if (authorizationHeader && authorizationHeader.toLowerCase().startsWith('bearer ')) {
         try {
             const token = authorizationHeader.substring(7)

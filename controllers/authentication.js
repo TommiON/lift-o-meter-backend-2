@@ -14,7 +14,6 @@ router.post('/login', async (request, response) => {
         return response.status(400).json({ error: 'käyttäjää ei löydy' })
     }
 
-    // tämä muutetaan kun salasanat kryptatuksi
     const passwordCorrect = await bcrypt.compare(request.body.password, user.password)
     
     if(!passwordCorrect) {
@@ -32,7 +31,8 @@ router.post('/login', async (request, response) => {
 })
 
 router.get('/logout', tokenHandler, async(request, response) => {
-    // implementoidaan myöhemmin
+    response.status(200).send('Backendistä: kirjaudutaan ulos.')
+
 })
 
 module.exports = router
