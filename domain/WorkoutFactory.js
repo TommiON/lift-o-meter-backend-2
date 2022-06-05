@@ -1,4 +1,4 @@
-const { Workout } = require('../models')
+const { Workout, User } = require('../models')
 
 const WorkoutFactory = async (idForUser) => {
     try {

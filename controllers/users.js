@@ -5,11 +5,13 @@ const tokenHandler = require('../utils/tokenHandler')
 
 router.post('/', async (request, response) => {
     try {
+        console.log('user, POST...')
         const saltrounds = 10
         const hashedPassword = await bcrypt.hash(request.body.password, saltrounds)
         const newUser = await User.create({ ...request.body, password: hashedPassword })
         response.json(newUser)
     } catch (error) {
+        console.log('user, POST, virhetilanne')
         response.status(400).json({error})
     }
 })
