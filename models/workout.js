@@ -21,6 +21,10 @@ Workout.init({
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
+    date: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
     finished: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
