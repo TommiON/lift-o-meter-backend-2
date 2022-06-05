@@ -10,7 +10,7 @@ Exercise.init({
         autoIncrement: true
     },
     kind: {
-        type: DataTypes.ENUM('SQUAT', 'BENCH', 'ROW', 'OVERHEAD', 'DEADLIFT'),
+        type: DataTypes.STRING,
         allowNull: false
     },
     load: {

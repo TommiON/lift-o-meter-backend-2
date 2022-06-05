@@ -10,7 +10,7 @@ Workout.init({
         autoIncrement: true
     },
     kind: {
-        type: DataTypes.ENUM('A', 'B'),
+        type: DataTypes.STRING,
         allowNull: false
     },
     serialNumber: {
