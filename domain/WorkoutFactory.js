@@ -20,36 +20,15 @@ const WorkoutFactory = async (idForUser) => {
 
 const buildFirst = async (idForUser) => {
     try {
-        // tää veke kun ExerciseFactory käyttöön
-        const user = await User.findByPk(idForUser)
-
         const firstWorkout = await Workout.create({
             userId: idForUser,
             kind: 'A',
             serialNumber: 1,
         })
-        
-        await Exercise.create({
-            workoutId: firstWorkout.id,
-            kind: 'SQUAT',
-            load: RoundLoad(user.bestSquat / 2),
-            repetitions: [null, null, null, null, null]
-        })
 
-        await Exercise.create({
-            workoutId: firstWorkout.id,
-            kind: 'BENCH',
-            load: RoundLoad(user.bestBenchpress / 2),
-            repetitions: [null, null, null, null, null]
-        })
-
-        await Exercise.create({
-            workoutId: firstWorkout.id,
-            kind: 'ROW',
-            load: RoundLoad(user.bestRow / 2),
-            repetitions: [null, null, null, null, null]
-        })
+        ExerciseFactory(idForUser, firstWorkout.id)
         
+        // saako jo tässä kohtaa palauttamaan exerciset myös?
         return firstWorkout
 
     } catch (error) {
@@ -59,37 +38,24 @@ const buildFirst = async (idForUser) => {
 
 const buildSecond = async (idForUser) => {
     try {
-        // tää veke kun ExerciseFactory käyttöön
-        const user = await User.findByPk(idForUser)
-
         const secondWorkout = await Workout.create({
             userId: idForUser,
             kind: 'B',
             serialNumber: 2,
         })
-        
-        await Exercise.create({
-            workoutId: secondWorkout.id,
-            kind: 'SQUAT',
-            // tässä pieni detalji - entä jos heti ensimmäinen kyykky epäonnistuu?
-            load: Progress(user.bestSquat / 2),
-            repetitions: [null, null, null, null, null]
+
+        const firstWorkout = await Workout.findOne({
+            include: {
+                model: Exercise,
+                attributes: ['kind', 'load', 'repetitions', 'failures']
+            },
+            where: { userId: idForUser, serialNumber: 1 }
         })
 
-        await Exercise.create({
-            workoutId: secondWorkout.id,
-            kind: 'OVERHEAD',
-            load: RoundLoad(user.bestOverheadpress / 2),
-            repetitions: [null, null, null, null, null]
-        })
+        console.log('*** BUILDING SECOND, FINDING FIRST: ', firstWorkout)
 
-        await Exercise.create({
-            workoutId: secondWorkout.id,
-            kind: 'DEADLIFT',
-            load: RoundLoad(user.bestDeadlift / 2),
-            repetitions: [null]
-        })
-        
+        ExerciseFactory(idForUser, secondWorkout.id, firstWorkout)
+         
         return secondWorkout
 
     } catch (error) {
@@ -108,14 +74,20 @@ const buildNext = async (idForUser) => {
         const latestSerial = databaseMaxSerial.max
 
         const latestWorkout = await Workout.findOne({
+            include: {
+                model: Exercise,
+                attributes: ['kind', 'load', 'repetitions', 'failures']
+            },
             where: { serialNumber: latestSerial, userId: idForUser }
         })
 
         const secondLatestWorkout = await Workout.findOne({
+            include: {
+                model: Exercise,
+                attributes: ['kind', 'load', 'repetitions', 'failures']
+            },
             where: { serialNumber: latestSerial - 1, userId: idForUser }
         })
-
-        // eriytä ylläoleva omaan apuluokkaan
 
         const newWorkout = await Workout.create({
             userId: idForUser,
@@ -123,14 +95,7 @@ const buildNext = async (idForUser) => {
             serialNumber: latestWorkout.serialNumber + 1
         })
 
-        // ja seuraavat kans eriytetään ExerciseFactoryyn
-
-        await Exercise.create({
-            workoutId: newWorkout.id,
-            kind: 'SQUAT',
-            load: 66.6,
-            repetitions: [null, null, null, null, null]
-        })
+        ExerciseFactory(idForUser, newWorkout.id, latestWorkout, secondLatestWorkout)
 
         return newWorkout
 

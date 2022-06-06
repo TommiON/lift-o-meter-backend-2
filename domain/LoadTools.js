@@ -1,21 +1,31 @@
 const RoundLoad = (input) => {    
-    if(isNaN(input)) {
-        return null
+    if(isNaN(input)) { 
+        return null 
     }
+
     const components = (input / 2.5)
-    return components * 2.5;
+    return components * 2.5
 }
 
 const Progress = (input) => {
-    return RoundLoad(1.025 * input)
+    let numericalInput = parseFloat(input)
+    if(numericalInput) {
+        return numericalInput + 2.5
+    }
 }
 
 const DeadliftProgress = (input) => {
-    return RoundLoad(1.05 * input)
+    let numericalInput = parseFloat(input)
+    if(numericalInput) {
+        return numericalInput + 5
+    }
 }
 
 const Deload = (input) => {
-    return RoundLoad(0.8 * input)
+    let numericalInput = parseFloat(input)
+    if(numericalInput) {
+        return RoundLoad(0.8 * input)
+    }
 }
 
 module.exports = {
