@@ -1,12 +1,15 @@
 const sequelize = require('sequelize')
 const { Workout, User, Exercise } = require('../models')
-const { RoundLoad } = require('./LoadTools')
+const { RoundLoad, Progress } = require('./LoadTools')
+const ExerciseFactory = require('./ExerciseFactory')
 
 const WorkoutFactory = async (idForUser) => {
     try {
         const countOfPrevious = await Workout.count({ where: { userId: idForUser }})
         if(countOfPrevious === 0) {
-            return buildInitial(idForUser)
+            return buildFirst(idForUser)
+        } else if(countOfPrevious === 1) {
+            return buildSecond(idForUser)
         } else {
             return buildNext(idForUser)
         }    
@@ -15,13 +18,13 @@ const WorkoutFactory = async (idForUser) => {
     }
 }
 
-const buildInitial = async (idForUser) => {
+const buildFirst = async (idForUser) => {
     try {
-        // tarvitaanko tätä käyttäjän hakua mihinkään, tulee jo parametrina
+        // tää veke kun ExerciseFactory käyttöön
         const user = await User.findByPk(idForUser)
-        
+
         const firstWorkout = await Workout.create({
-            userId: user.id,
+            userId: idForUser,
             kind: 'A',
             serialNumber: 1,
         })
@@ -54,6 +57,46 @@ const buildInitial = async (idForUser) => {
     }
 }
 
+const buildSecond = async (idForUser) => {
+    try {
+        // tää veke kun ExerciseFactory käyttöön
+        const user = await User.findByPk(idForUser)
+
+        const secondWorkout = await Workout.create({
+            userId: idForUser,
+            kind: 'B',
+            serialNumber: 2,
+        })
+        
+        await Exercise.create({
+            workoutId: secondWorkout.id,
+            kind: 'SQUAT',
+            // tässä pieni detalji - entä jos heti ensimmäinen kyykky epäonnistuu?
+            load: Progress(user.bestSquat / 2),
+            repetitions: [null, null, null, null, null]
+        })
+
+        await Exercise.create({
+            workoutId: secondWorkout.id,
+            kind: 'OVERHEAD',
+            load: RoundLoad(user.bestOverheadpress / 2),
+            repetitions: [null, null, null, null, null]
+        })
+
+        await Exercise.create({
+            workoutId: secondWorkout.id,
+            kind: 'DEADLIFT',
+            load: RoundLoad(user.bestDeadlift / 2),
+            repetitions: [null]
+        })
+        
+        return secondWorkout
+
+    } catch (error) {
+        return error
+    }
+}
+
 const buildNext = async (idForUser) => {
     try {
         const databaseMaxSerial = await Workout.findOne({
@@ -65,7 +108,11 @@ const buildNext = async (idForUser) => {
         const latestSerial = databaseMaxSerial.max
 
         const latestWorkout = await Workout.findOne({
-            where: { serialNumber: latestSerial }
+            where: { serialNumber: latestSerial, userId: idForUser }
+        })
+
+        const secondLatestWorkout = await Workout.findOne({
+            where: { serialNumber: latestSerial - 1, userId: idForUser }
         })
 
         // eriytä ylläoleva omaan apuluokkaan
@@ -81,7 +128,7 @@ const buildNext = async (idForUser) => {
         await Exercise.create({
             workoutId: newWorkout.id,
             kind: 'SQUAT',
-            load: 666,
+            load: 66.6,
             repetitions: [null, null, null, null, null]
         })
 

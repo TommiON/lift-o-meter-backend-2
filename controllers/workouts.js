@@ -14,7 +14,7 @@ router.get('/', tokenHandler, async (request, response) => {
             attributes: ['serialNumber', 'kind', 'started', 'finished', 'userId'],
             include: {
                 model: Exercise,
-                attributes: ['kind', 'load', 'repetitions', 'failed']
+                attributes: ['kind', 'load', 'repetitions', 'failures']
             },
             where: {
                 userId: request.decodedToken.id

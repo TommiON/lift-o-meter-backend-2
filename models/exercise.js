@@ -20,9 +20,9 @@ Exercise.init({
     repetitions: {
         type: DataTypes.ARRAY(DataTypes.INTEGER)
     },
-    failed: {
-        type: DataTypes.BOOLEAN,
-        allowNull: true
+    failures: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
     }
 }, {
     sequelize,
