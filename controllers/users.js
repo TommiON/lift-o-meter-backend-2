@@ -11,8 +11,7 @@ router.post('/', async (request, response) => {
         const newUser = await User.create({ ...request.body, password: hashedPassword })
         response.json(newUser)
     } catch (error) {
-        console.log('user, POST, virhetilanne')
-        response.status(400).json({error})
+        response.status(400).json({ 'User controller, POST, virhe: ': error })
     }
 })
 
@@ -21,8 +20,7 @@ router.get('/', async (request, response) => {
         const allUsers = await User.findAll()
         response.json(allUsers)
     } catch (error) {
-        response.status(400).json({error})
-    }
+        response.status(400).json({ 'User controller, GET all, virhe: ': error })    }
 })
 
 router.get('/:username', tokenHandler, async (request, response) => {
@@ -30,7 +28,7 @@ router.get('/:username', tokenHandler, async (request, response) => {
         const user = await User.findOne({ where: {username: request.body.username} })
         response.json(user)
     } catch (error) {
-        response.status(400).json({error})
+        response.status(400).json({ 'User controller, GET one, virhe: ': error })    
     }
 })
 

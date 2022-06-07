@@ -3,6 +3,8 @@ const { Workout, User, Exercise } = require('../models')
 const { RoundLoad, Progress } = require('./LoadTools')
 const LoadCalculator = require('./LoadCalculator')
 
+// implementoitava failureiden nollaus jos deload - se lienee ExerciseFactoryn homma?
+
 const ExerciseFactory = async (idForUser, idForNewWorkout, latestWorkout, secondLatestWorkout) => {
     if(latestWorkout === undefined && secondLatestWorkout === undefined) {
         buildFirst(idForUser, idForNewWorkout)
