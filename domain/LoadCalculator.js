@@ -7,7 +7,6 @@ const LoadCalculator = (previousExercise) => {
         } else if(previousExercise.failures > 0) {
             return previousExercise.load
         } else {
-            console.log('** LOAD CALCULATOR, previousExercise.load: ', previousExercise.load)
             if(previousExercise.kind === 'DEADLIFT') {
                 return DeadliftProgress(previousExercise.load)
             } else {
@@ -18,7 +17,6 @@ const LoadCalculator = (previousExercise) => {
         console.log('VIRHE, LOAD CALCULATOR: ', error)
         throw error
     }
-   
 }
 
 module.exports = LoadCalculator
