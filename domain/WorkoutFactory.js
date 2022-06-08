@@ -52,8 +52,6 @@ const buildSecond = async (idForUser) => {
             where: { userId: idForUser, serialNumber: 1 }
         })
 
-        console.log('*** BUILDING SECOND, FINDING FIRST: ', firstWorkout)
-
         ExerciseFactory(idForUser, secondWorkout.id, firstWorkout)
          
         return secondWorkout
@@ -65,13 +63,13 @@ const buildSecond = async (idForUser) => {
 
 const buildNext = async (idForUser) => {
     try {
-        const databaseMaxSerial = await Workout.findOne({
+        const maxSerialNumber = await Workout.findOne({
             attributes: [sequelize.fn('MAX', sequelize.col('serial_number')) ],
             raw: true,
             where: { userId: idForUser }
         })
         
-        const latestSerial = databaseMaxSerial.max
+        const latestSerial = maxSerialNumber.max
 
         const latestWorkout = await Workout.findOne({
             include: {
@@ -102,8 +100,6 @@ const buildNext = async (idForUser) => {
     } catch (error) {
         return error
     }
-
-    
 }
 
 module.exports = WorkoutFactory

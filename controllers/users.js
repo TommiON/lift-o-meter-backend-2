@@ -2,14 +2,14 @@ const router = require('express').Router()
 const bcrypt = require('bcrypt')
 const { User } = require('../models')
 const tokenHandler = require('../utils/tokenHandler')
+const UserFactory = require('../domain/UserFactory')
+const WorkoutFactory = require('../domain/WorkoutFactory')
 
 router.post('/', async (request, response) => {
     try {
-        console.log('user, POST...')
-        const saltrounds = 10
-        const hashedPassword = await bcrypt.hash(request.body.password, saltrounds)
-        const newUser = await User.create({ ...request.body, password: hashedPassword })
-        response.json(newUser)
+        const newUser = await UserFactory(request.body)
+        await WorkoutFactory(newUser.id)
+        response.status(200).json(newUser)
     } catch (error) {
         response.status(400).json({ 'User controller, POST, virhe: ': error })
     }

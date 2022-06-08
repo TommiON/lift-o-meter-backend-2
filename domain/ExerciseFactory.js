@@ -2,6 +2,7 @@ const sequelize = require('sequelize')
 const { Workout, User, Exercise } = require('../models')
 const { RoundLoad, Progress } = require('./LoadTools')
 const LoadCalculator = require('./LoadCalculator')
+const FailureHandler = require('./FailureHandler')
 
 // implementoitava failureiden nollaus jos deload - se lienee ExerciseFactoryn homma?
 
@@ -18,50 +19,66 @@ const ExerciseFactory = async (idForUser, idForNewWorkout, latestWorkout, second
 const buildNext = async (idForUser, idForNewWorkout, latestWorkout, secondLatestWorkout) => {
     try {
         if(latestWorkout.kind === 'B') {
-            console.log('*** Last was B, now building A again...')
+            const squatLoad = await LoadCalculator(latestWorkout.exercises[0])
+            const squatFailures = await FailureHandler(latestWorkout.id, 'SQUAT', squatLoad)
             await Exercise.create({
                 workoutId: idForNewWorkout,
                 kind: 'SQUAT',
-                load: LoadCalculator(latestWorkout.exercises[0]),
-                repetitions: [null, null, null, null, null]
+                load: squatLoad,
+                repetitions: [null, null, null, null, null],
+                failures: squatFailures
             })
         
+            const benchLoad = await LoadCalculator(secondLatestWorkout.exercises[1])
+            const benchFailures = await FailureHandler(secondLatestWorkout.id, 'BENCH', benchLoad)
             await Exercise.create({
                 workoutId: idForNewWorkout,
                 kind: 'BENCH',
-                load: LoadCalculator(secondLatestWorkout.exercises[1]),
-                repetitions: [null, null, null, null, null]
+                load: benchLoad,
+                repetitions: [null, null, null, null, null],
+                failures: benchFailures
             })
-        
+
+            const rowLoad = await LoadCalculator(secondLatestWorkout.exercises[2])
+            const rowFailures = await FailureHandler(secondLatestWorkout.id, 'ROW', rowLoad)
             await Exercise.create({
                 workoutId: idForNewWorkout,
                 kind: 'ROW',
-                load: LoadCalculator(secondLatestWorkout.exercises[2]),
-                repetitions: [null, null, null, null, null]
+                load: rowLoad,
+                repetitions: [null, null, null, null, null],
+                failures: rowFailures
             })  
         }
 
         if(latestWorkout.kind === 'A') {
-            console.log('*** Last was A, now building B again...')
+            const squatLoad = await LoadCalculator(latestWorkout.exercises[0])
+            const squatFailures = await FailureHandler(latestWorkout.id, 'SQUAT', squatLoad)
             await Exercise.create({
                 workoutId: idForNewWorkout,
                 kind: 'SQUAT',
-                load: LoadCalculator(latestWorkout.exercises[0]),
-                repetitions: [null, null, null, null, null]
+                load: squatLoad,
+                repetitions: [null, null, null, null, null],
+                failures: squatFailures
             })
         
+            const overheadLoad = await LoadCalculator(secondLatestWorkout.exercises[1])
+            const overheadFailures = await FailureHandler(secondLatestWorkout.id, 'OVERHEAD', overheadLoad)
             await Exercise.create({
                 workoutId: idForNewWorkout,
                 kind: 'OVERHEAD',
-                load: LoadCalculator(secondLatestWorkout.exercises[1]),
-                repetitions: [null, null, null, null, null]
+                load: overheadLoad,
+                repetitions: [null, null, null, null, null],
+                failures: overheadFailures
             })
-        
+
+            const deadliftLoad = await LoadCalculator(secondLatestWorkout.exercises[2])
+            const deadliftFailures = await FailureHandler(secondLatestWorkout.id, 'DEADLIFT', deadliftLoad)
             await Exercise.create({
                 workoutId: idForNewWorkout,
                 kind: 'DEADLIFT',
-                load: LoadCalculator(secondLatestWorkout.exercises[2]),
-                repetitions: [null]
+                load: deadliftLoad,
+                repetitions: [null],
+                failures: deadliftFailures
             })  
         }
 
@@ -75,11 +92,14 @@ const buildSecond = async (idForUser, idForNewWorkout, latestWorkout) => {
     try {
         const user = await User.findByPk(idForUser)
 
+        const squatLoad = await LoadCalculator(latestWorkout.exercises[0])
+        const squatFailures = await FailureHandler(latestWorkout.id, 'SQUAT', squatLoad)
         await Exercise.create({
             workoutId: idForNewWorkout,
             kind: 'SQUAT',
-            load: LoadCalculator(latestWorkout.exercises[0]),
-            repetitions: [null, null, null, null, null]
+            load: squatLoad,
+            repetitions: [null, null, null, null, null],
+            failures: squatFailures
         })
     
         await Exercise.create({
@@ -104,8 +124,6 @@ const buildSecond = async (idForUser, idForNewWorkout, latestWorkout) => {
 const buildFirst = async (idForUser, idForNewWorkout) => {
     try {
         const user = await User.findByPk(idForUser)
-
-        //const firstWorkout = await Workout.findOne( { where: { userId: idForUser }})
  
         await Exercise.create({
             workoutId: idForNewWorkout,

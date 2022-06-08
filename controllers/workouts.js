@@ -1,13 +1,12 @@
 const router = require('express').Router()
 const tokenHandler = require('../utils/tokenHandler')
-const workoutFactory = require('../domain/WorkoutFactory')
+const WorkoutFactory = require('../domain/WorkoutFactory')
 const RepetitionsHandler = require('../domain/RepetitionsHandler')
 const { Workout, Exercise } = require('../models')
 
-// tätä metodia ei tarvita lainkaan
-// uusien luominen: ekaa kutsutaan kun luodaan käyttäjä, seuraavia kun edellinen workout valmistuu
+// tämä metodi säilytetään testikäyttöön
 router.post('/', tokenHandler, async (request, response) => {
-    const newWorkout = await workoutFactory(request.decodedToken.id)
+    const newWorkout = await WorkoutFactory(request.decodedToken.id)
     response.status(200).json(newWorkout)
 })
 
@@ -29,7 +28,7 @@ router.get('/', tokenHandler, async (request, response) => {
         response.status(200).json(workouts)
 
     } catch (error) {
-        response.status(400).json({ 'Workout controller, GET all, virhe: ': error })
+        response.status(400).json({ 'Workout controller, GET all, virhe: ': error.message })
     }
 })
 
@@ -56,7 +55,7 @@ router.put('/:id/start', tokenHandler, async (request, response) => {
             response.status(401).send('Workout controller, PUT start, virhe: ei oikeuksia')
         }
     } catch (error) {
-        response.status(400).json({ 'Workout controller, PUT start, virhe: ': error })
+        response.status(400).json({ 'Workout controller, PUT start, virhe: ': error.message })
     }
 })
 
@@ -79,6 +78,8 @@ router.put('/:id/finish', tokenHandler, async (request, response) => {
                 },
                 where: { id: request.params.id }
             })
+
+            await WorkoutFactory(request.decodedToken.id)
             
             response.status(200).json(finishedWorkout)
             
@@ -86,7 +87,7 @@ router.put('/:id/finish', tokenHandler, async (request, response) => {
             response.status(401).send('Workout controller, PUT finish, virhe: ei oikeuksia tai harjoitus ei vielä alkanut')
         }
     } catch (error) {
-        response.status(400).json({ 'Workout controller, PUT finish, virhe: ': error })
+        response.status(400).json({ 'Workout controller, PUT finish, virhe: ': error.message })
     }
 
 })
