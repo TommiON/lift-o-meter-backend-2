@@ -13,7 +13,7 @@ router.post('/', tokenHandler, async (request, response) => {
 router.get('/', tokenHandler, async (request, response) => {
     try {
         const workouts = await Workout.findAll({
-            attributes: ['id', 'serialNumber', 'kind', 'started', 'finished', 'userId'],
+            attributes: ['id', 'serialNumber', 'kind', 'started', 'finished', 'userId', 'date'],
             include: {
                 model: Exercise,
                 attributes: ['id', 'kind', 'load', 'repetitions', 'failures']
@@ -42,7 +42,7 @@ router.put('/:id/start', tokenHandler, async (request, response) => {
             )
             
             const startedWorkout = await Workout.findOne({
-                attributes: ['id', 'serialNumber', 'kind', 'started', 'finished', 'userId'],
+                attributes: ['id', 'serialNumber', 'kind', 'started', 'finished', 'userId', 'date'],
                 include: {
                     model: Exercise,
                     attributes: ['id', 'kind', 'load', 'repetitions', 'failures']
@@ -63,6 +63,7 @@ router.put('/:id/finish', tokenHandler, async (request, response) => {
     try {
         const workout = await Workout.findByPk(request.params.id)
         if(workout.userId === request.decodedToken.id && workout.started) {
+
             await RepetitionsHandler(request.params.id, request.body)
 
             await Workout.update(
@@ -79,9 +80,21 @@ router.put('/:id/finish', tokenHandler, async (request, response) => {
                 where: { id: request.params.id }
             })
 
-            await WorkoutFactory(request.decodedToken.id)
+            const nextWorkout = await WorkoutFactory(request.decodedToken.id)
+
+            const nextWorkoutWithExercises = await Workout.findOne({
+                attributes: ['id', 'serialNumber', 'kind', 'started', 'finished', 'userId'],
+                include: {
+                    model: Exercise,
+                    attributes: ['id', 'kind', 'load', 'repetitions', 'failures']
+                },
+                where: { id: nextWorkout.id }
+            })
             
-            response.status(200).json(finishedWorkout)
+            response.status(200).json({
+                completed: finishedWorkout,
+                next: nextWorkoutWithExercises
+            })
             
         } else {
             response.status(401).send('Workout controller, PUT finish, virhe: ei oikeuksia tai harjoitus ei vielä alkanut')
