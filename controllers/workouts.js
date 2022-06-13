@@ -32,6 +32,29 @@ router.get('/', tokenHandler, async (request, response) => {
     }
 })
 
+router.get('/:id', tokenHandler, async (request, response) => {
+    try {
+        const workout = await Workout.findOne({
+            attributes: ['id', 'serialNumber', 'kind', 'started', 'finished', 'userId', 'date'],
+            include: {
+                model: Exercise,
+                attributes: ['id', 'kind', 'load', 'repetitions', 'failures']
+            },
+            where: {
+                id: request.params.id
+            },
+            order: [
+                ['serialNumber', 'DESC']
+            ]
+        })
+
+        response.status(200).json(workout)
+
+    } catch (error) {
+        response.status(400).json({ 'Workout controller, GET one, virhe: ': error.message })
+    }
+})
+
 router.put('/:id/start', tokenHandler, async (request, response) => {
     try {
         const workout = await Workout.findByPk(request.params.id)
@@ -72,7 +95,7 @@ router.put('/:id/finish', tokenHandler, async (request, response) => {
             )
 
             const finishedWorkout = await Workout.findOne({
-                attributes: ['id', 'serialNumber', 'kind', 'started', 'finished', 'userId'],
+                attributes: ['id', 'serialNumber', 'kind', 'started', 'finished', 'userId', 'date'],
                 include: {
                     model: Exercise,
                     attributes: ['id', 'kind', 'load', 'repetitions', 'failures']
@@ -81,19 +104,10 @@ router.put('/:id/finish', tokenHandler, async (request, response) => {
             })
 
             const nextWorkout = await WorkoutFactory(request.decodedToken.id)
-
-            const nextWorkoutWithExercises = await Workout.findOne({
-                attributes: ['id', 'serialNumber', 'kind', 'started', 'finished', 'userId'],
-                include: {
-                    model: Exercise,
-                    attributes: ['id', 'kind', 'load', 'repetitions', 'failures']
-                },
-                where: { id: nextWorkout.id }
-            })
-            
+    
             response.status(200).json({
                 completed: finishedWorkout,
-                next: nextWorkoutWithExercises
+                idForNext: nextWorkout.id
             })
             
         } else {
