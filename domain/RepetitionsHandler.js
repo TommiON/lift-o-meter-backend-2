@@ -12,7 +12,7 @@ const RepetitionsHandler = async (workoutId, reps) => {
             })
 
             let failures = exercise.failures
-            const failedReps = repetitions.filter(repetition => repetition < 5)
+            const failedReps = repetitions.filter(repetition => repetition < 5 && repetition !== null)
             if(failedReps.length > 0) {
                 failures = failures + 1
             }
