@@ -15,6 +15,8 @@ const RepetitionsHandler = async (workoutId, reps) => {
             const failedReps = repetitions.filter(repetition => repetition < 5 && repetition !== null)
             if(failedReps.length > 0) {
                 failures = failures + 1
+            } else {
+                failures = 0
             }
             
             await Exercise.update(
