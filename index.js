@@ -4,6 +4,7 @@ const healthCheckRouter = require('./controllers/healthCheck')
 const userRouter = require('./controllers/users')
 const authenticationRouter = require('./controllers/authentication')
 const workoutRouter = require('./controllers/workouts')
+const statsRouter = require('./controllers/stats')
 const { PORT } = require('./utils/config')
 const { connectToDatabase } = require('./utils/db')
 
@@ -15,6 +16,7 @@ app.use('/api/healthcheck', healthCheckRouter)
 app.use('/api/users', userRouter)
 app.use('/api/auth', authenticationRouter)
 app.use('/api/workouts', workoutRouter)
+app.use('/api/stats', statsRouter)
 
 const start = async () => {
     await connectToDatabase()

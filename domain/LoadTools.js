@@ -3,7 +3,7 @@ const RoundLoad = (input) => {
         return null 
     }
 
-    const components = (input / 2.5)
+    const components = Math.floor((input / 2.5))
     return components * 2.5
 }
 
